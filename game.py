@@ -1,15 +1,15 @@
 import hashlib
 import requests
 import re
+import sys
 
 
-def length_check():
+def length_check(input_string):
     while True:
-        inp = input("Enter your password: ")
-        if len(inp) < 8:
+        if len(input_string) < 8:
             print("Your password is too short. Please enter a password of at least 8 characters.")
         else:
-            return inp
+            return input_string
 
 
 def create_sha1_hash(input_from_user):
@@ -29,13 +29,22 @@ def send_request(full_hashed_password):
             return result[1]
 
 
-checked_input = length_check()
-hashed_result = create_sha1_hash(checked_input)
-print('Your hashed password is: ', hashed_result)
-print('Checking...')
-resp = send_request(hashed_result)
-message = 'Your password has been pwned! The password "{}" appears {} times in data breaches.'.format(checked_input, resp)
-if resp is None:
-    print("Good news! Your password hasn't been pwned.")
-else:
-    print(message)
+while True:
+    inp = input("Enter your password (or 'exit' to quit): ")
+    args = sys.argv
+
+    if inp == 'exit':
+        print("Goodbye!")
+        break
+    else:
+        checked_input = length_check(inp)
+        hashed_result = create_sha1_hash(checked_input)
+        if '--show-hash' in args:
+            print('Your hashed password is: ', hashed_result)
+        print('Checking...')
+        resp = send_request(hashed_result)
+        message = 'Your password has been pwned! The password "{}" appears {} times in data breaches.'.format(checked_input, resp)
+        if resp is None:
+            print("Good news! Your password hasn't been pwned.")
+        else:
+            print(message)
